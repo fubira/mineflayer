@@ -20,8 +20,12 @@ const bot = mineflayer.createBot({
   host: process.argv[2],
   port: parseInt(process.argv[3]),
   username: process.argv[4] ? process.argv[4] : 'graffiti',
-  password: process.argv[5],
-  verbose: true
+  password: process.argv[5]
+})
+
+let mcData
+bot.once('inject_allowed', () => {
+  mcData = require('minecraft-data')(bot.version)
 })
 
 bot.on('chat', (username, message) => {
@@ -45,7 +49,7 @@ function watchPaintingOrSign () {
     }
   })
   const signBlock = bot.findBlock({
-    matching: [63, 68]
+    matching: ['painting', 'sign'].map(name => mcData.blocksByName[name].id)
   })
   if (signBlock) {
     bot.chat(`The sign says: ${signBlock.signText}`)
@@ -58,7 +62,7 @@ function watchPaintingOrSign () {
 
 function updateSign (message) {
   const signBlock = bot.findBlock({
-    matching: [63, 68]
+    matching: ['painting', 'sign'].map(name => mcData.blocksByName[name].id)
   })
   if (signBlock) {
     bot.updateSign(signBlock, message.split(' ').slice(1).join(' '))

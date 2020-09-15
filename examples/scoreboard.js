@@ -12,24 +12,18 @@ const bot = mineflayer.createBot({
   host: process.argv[2],
   port: parseInt(process.argv[3]),
   username: process.argv[4] ? process.argv[4] : 'scoreboard',
-  password: process.argv[5],
-  verbose: true
+  password: process.argv[5]
 })
 
 // /scoreboard objectives add Kills totalKillCount
 // /scoreboard objectives setDisplay sidebar Kills
-bot.on('scoreboardObjective', (name, text) => {
-  bot.chat(`Scoreboard objective : ${name}, ${text}`)
-  console.log(bot.scoreboards)
-})
-
-bot.on('scoreboardDisplayObjective', (name, position) => {
-  bot.chat(`Display scoreboard : ${name}, ${position}`)
-  console.log(bot.scoreboards)
+bot.on('scoreboardCreated', (scoreboard) => {
+  bot.chat(`New scoreboard: ${scoreboard.name}, ${scoreboard.title}`)
+  console.log(scoreboard)
 })
 
 // kill a mob for this to be displayed
-bot.on('scoreboardScore', (scoreName, itemName, value) => {
-  bot.chat(`Scoreboard score : ${scoreName}, ${itemName}, ${value}`)
-  console.log(bot.scoreboards)
+bot.on('scoreboardScoreUpdated', (scoreboard, updated) => {
+  bot.chat(`Scoreboard score : ${scoreboard.title}, ${updated.name}, ${updated.value}`)
+  console.log(scoreboard)
 })

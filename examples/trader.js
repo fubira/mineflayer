@@ -23,10 +23,12 @@ const bot = mineflayer.createBot({
   host: process.argv[2],
   port: parseInt(process.argv[3]),
   username: process.argv[4] ? process.argv[4] : 'trader',
-  password: process.argv[5],
-  verbose: true
+  password: process.argv[5]
 })
-const mcdata = require('minecraft-data')(bot.version)
+let mcData
+bot.once('inject_allowed', () => {
+  mcData = require('minecraft-data')(bot.version)
+})
 
 bot.on('chat', (username, message) => {
   if (username === bot.username) return
@@ -48,7 +50,7 @@ bot.on('chat', (username, message) => {
 })
 
 function showVillagers () {
-  const villagers = Object.keys(bot.entities).map(id => bot.entities[id]).filter(e => e.entityType === 120)
+  const villagers = Object.keys(bot.entities).map(id => bot.entities[id]).filter(e => e.entityType === mcData.entitiesByName.villager)
   const closeVillagersId = villagers.filter(e => bot.entity.position.distanceTo(e.position) < 3).map(e => e.id)
   bot.chat(`found ${villagers.length} villagers`)
   bot.chat(`villager(s) you can trade with: ${closeVillagersId.join(', ')}`)
@@ -67,13 +69,13 @@ function showTrades (id) {
     case !e:
       bot.chat(`cant find entity with id ${id}`)
       break
-    case e.entityType !== 120:
+    case e.entityType !== mcData.entitiesByName.villager:
       bot.chat('entity is not a villager')
       break
     case bot.entity.position.distanceTo(e.position) > 3:
       bot.chat('villager out of reach')
       break
-    default:
+    default: {
       const villager = bot.openVillager(e)
       villager.once('ready', () => {
         villager.close()
@@ -81,6 +83,7 @@ function showTrades (id) {
           bot.chat(`${i + 1}: ${trade}`)
         })
       })
+    }
   }
 }
 
@@ -90,13 +93,13 @@ function trade (id, index, count) {
     case !e:
       bot.chat(`cant find entity with id ${id}`)
       break
-    case e.entityType !== 120:
+    case e.entityType !== mcData.entitiesByName.villager:
       bot.chat('entity is not a villager')
       break
     case bot.entity.position.distanceTo(e.position) > 3:
       bot.chat('villager out of reach')
       break
-    default:
+    default: {
       const villager = bot.openVillager(e)
       villager.once('ready', () => {
         const trade = villager.trades[index - 1]
@@ -131,6 +134,7 @@ function trade (id, index, count) {
             })
         }
       })
+    }
   }
 
   function hasResources (window, trade, count) {
@@ -169,7 +173,7 @@ function stringifyItem (item) {
       text += ` enchanted with ${(ench || StoredEnchantments).value.value.map((e) => {
         const lvl = e.lvl.value
         const id = e.id.value
-        return mcdata.enchantments[id].displayName + ' ' + lvl
+        return mcData.enchantments[id].displayName + ' ' + lvl
       }).join(' ')}`
     }
   }

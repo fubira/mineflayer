@@ -52,7 +52,7 @@ module.exports = (version) => {
 
   const funcs = {}
   for (const id in mcData.blocks) {
-    if (mcData.blocks.hasOwnProperty(id)) {
+    if (mcData.blocks[id] !== undefined) {
       const block = mcData.blocks[id]
       if (block.diggable && excludedBlocks.indexOf(block.name) === -1) {
         funcs[block.name] = ((blockId => (bot, done) => {
@@ -71,7 +71,10 @@ function digSomething (blockId, bot, done) {
 
   const diggingTest = [
     (cb) => {
-      bot.test.setInventorySlot(36, new Item(blockId, 1, 0), cb)
+      bot.test.setInventorySlot(36, new Item(blockId, 1, 0), (err) => {
+        assert.ifError(err)
+        cb()
+      })
     },
     (cb) => {
       // TODO: find a better way than this setTimeout(cb,200);
@@ -81,7 +84,10 @@ function digSomething (blockId, bot, done) {
     },
     bot.test.clearInventory,
     (cb) => {
-      bot.test.setInventorySlot(36, new Item(mcData.itemsByName['diamond_pickaxe'].id, 1, 0), cb)
+      bot.test.setInventorySlot(36, new Item(mcData.itemsByName.diamond_pickaxe.id, 1, 0), (err) => {
+        assert.ifError(err)
+        cb()
+      })
     },
     bot.test.becomeSurvival,
     (cb) => {
@@ -94,7 +100,7 @@ function digSomething (blockId, bot, done) {
     (cb) => {
       // make sure that block is gone
 
-      assert.equal(bot.blockAt(bot.entity.position.plus(new Vec3(1, 0, 0))).type, 0)
+      assert.strictEqual(bot.blockAt(bot.entity.position.plus(new Vec3(1, 0, 0))).type, 0)
       cb()
     }
   ]

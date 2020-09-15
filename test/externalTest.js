@@ -1,3 +1,5 @@
+/* eslint-env mocha */
+
 const assert = require('assert')
 const mineflayer = require('../')
 const commonTest = require('./externalTests/plugins/testCommon')
@@ -14,10 +16,10 @@ const excludedTests = ['digEverything']
 
 const propOverrides = {
   'level-type': 'FLAT',
-  'spawn-npcs': 'false',
+  'spawn-npcs': 'true',
   'spawn-animals': 'false',
   'online-mode': 'false',
-  'gamemode': '1',
+  gamemode: '1',
   'spawn-monsters': 'false',
   'generate-structures': 'false'
 }
@@ -28,7 +30,7 @@ const download = require('minecraft-wrap').download
 const MC_SERVER_PATH = path.join(__dirname, 'server')
 
 const { firstVersion, lastVersion } = require('./common/parallel')
-mineflayer.supportedVersions.forEach((supportedVersion, i) => {
+mineflayer.testedVersions.forEach((supportedVersion, i) => {
   if (!(i >= firstVersion && i <= lastVersion)) {
     return
   }
@@ -36,7 +38,7 @@ mineflayer.supportedVersions.forEach((supportedVersion, i) => {
   const PORT = Math.round(30000 + Math.random() * 20000)
   const mcData = require('minecraft-data')(supportedVersion)
   const version = mcData.version
-  const MC_SERVER_JAR_DIR = process.env.MC_SERVER_JAR_DIR
+  const MC_SERVER_JAR_DIR = process.env.MC_SERVER_JAR_DIR || `${process.cwd()}/server_jars`
   const MC_SERVER_JAR = `${MC_SERVER_JAR_DIR}/minecraft_server.${version.minecraftVersion}.jar`
   const wrap = new Wrap(MC_SERVER_JAR, `${MC_SERVER_PATH}_${supportedVersion}`)
   wrap.on('line', (line) => {
@@ -51,15 +53,16 @@ mineflayer.supportedVersions.forEach((supportedVersion, i) => {
         bot = mineflayer.createBot({
           username: 'flatbot',
           viewDistance: 'tiny',
-          verbose: true,
           port: PORT,
           host: 'localhost',
           version: supportedVersion
         })
         commonTest(bot)
+        bot.test.port = PORT
 
         console.log('starting bot')
         bot.once('login', () => {
+          wrap.writeServer('op flatbot\n')
           console.log('waiting a second...')
           // this wait is to get all the window updates out of the way before we start expecting exactly what we cause.
           // there are probably other updates coming in that we want to get out of the way too, like health updates.
@@ -87,7 +90,6 @@ mineflayer.supportedVersions.forEach((supportedVersion, i) => {
               console.log('pong')
               assert.ok(results.latency >= 0)
               assert.ok(results.latency <= 1000)
-              wrap.writeServer('op flatbot\n')
               begin()
             })
           })
@@ -96,6 +98,7 @@ mineflayer.supportedVersions.forEach((supportedVersion, i) => {
     })
 
     beforeEach((done) => {
+      console.log('reset state')
       bot.test.resetState(done)
     })
 
@@ -122,7 +125,7 @@ mineflayer.supportedVersions.forEach((supportedVersion, i) => {
         if (excludedTests.indexOf(test) === -1) {
           if (typeof testFunctions === 'object') {
             for (const testFunctionName in testFunctions) {
-              if (testFunctions.hasOwnProperty(testFunctionName)) {
+              if (testFunctions[testFunctionName] !== undefined) {
                 it(`${test} ${testFunctionName}`, ((testFunctionName => function (done) {
                   this.timeout(30000)
                   bot.test.sayEverywhere(`starting ${test} ${testFunctionName}`)

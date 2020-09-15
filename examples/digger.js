@@ -22,13 +22,17 @@ const bot = mineflayer.createBot({
   host: process.argv[2],
   port: parseInt(process.argv[3]),
   username: process.argv[4] ? process.argv[4] : 'digger',
-  password: process.argv[5],
-  verbose: true
+  password: process.argv[5]
 })
 
 bot.on('chat', (username, message) => {
   if (username === bot.username) return
   switch (message) {
+    case 'loaded':
+      bot.waitForChunksToLoad(() => {
+        bot.chat('Ready!')
+      })
+      break
     case 'list':
       sayItems()
       break
@@ -77,27 +81,42 @@ function dig () {
 
 function build () {
   const referenceBlock = bot.blockAt(bot.entity.position.offset(0, -1, 0))
-  const jumpY = bot.entity.position.y + 1.0
+  const jumpY = Math.floor(bot.entity.position.y) + 1.0
   bot.setControlState('jump', true)
   bot.on('move', placeIfHighEnough)
+
+  let tryCount = 0
 
   function placeIfHighEnough () {
     if (bot.entity.position.y > jumpY) {
       bot.placeBlock(referenceBlock, vec3(0, 1, 0), (err) => {
         if (err) {
-          bot.chat(err.message)
+          tryCount++
+          if (tryCount > 10) {
+            bot.chat(err.message)
+            bot.setControlState('jump', false)
+            bot.removeListener('move', placeIfHighEnough)
+            return
+          }
           return
         }
+        bot.setControlState('jump', false)
+        bot.removeListener('move', placeIfHighEnough)
         bot.chat('Placing a block was successful')
       })
-      bot.setControlState('jump', false)
-      bot.removeListener('move', placeIfHighEnough)
     }
   }
 }
 
 function equipDirt () {
-  bot.equip(0x03, 'hand', (err) => {
+  const mcData = require('minecraft-data')(bot.version)
+  let itemsByName
+  if (bot.supportFeature('itemsAreNotBlocks')) {
+    itemsByName = 'itemsByName'
+  } else if (bot.supportFeature('itemsAreAlsoBlocks')) {
+    itemsByName = 'blocksByName'
+  }
+  bot.equip(mcData[itemsByName].dirt.id, 'hand', (err) => {
     if (err) {
       bot.chat(`unable to equip dirt: ${err.message}`)
     } else {

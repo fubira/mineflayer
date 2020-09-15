@@ -17,8 +17,7 @@ const bot = mineflayer.createBot({
   host: process.argv[2],
   port: parseInt(process.argv[3]),
   username: process.argv[4] ? process.argv[4] : 'sleeper',
-  password: process.argv[5],
-  verbose: true
+  password: process.argv[5]
 })
 
 bot.on('chat', (username, message) => {
@@ -42,7 +41,7 @@ bot.on('wake', () => {
 
 function goToSleep () {
   const bed = bot.findBlock({
-    matching: 26
+    matching: block => bot.isABed(block)
   })
   if (bed) {
     bot.sleep(bed, (err) => {

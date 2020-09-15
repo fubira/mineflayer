@@ -1,3 +1,191 @@
+## 2.28.1
+* fix findBlocks (thanks @Karang)
+
+## 2.28.0
+* add nearestEntity function (thanks @Karang)
+
+## 2.27.0
+* add heldItemChanged
+
+## 2.26.0
+* use and expose prismarine-world as bot.world
+* add itemDrop event (thanks @ImHarvol)
+* fix bot.fish callback (thanks @GroobleDierne)
+* parse entity metadata for crouching (thanks @IdanHo)
+* fix bot.time.day (thanks @Naomi-alt)
+* improve find blocks options (thanks @Karang)
+
+## 2.25.0
+* emit chestLidMove (thanks @imharvol)
+* add options for main hand selection (thanks @Colten-Covington)
+* fix respawning columns issues (thanks @Karang)
+
+## 2.24.0
+* Fix getBlockAt when outside bounds
+* Improve documentation and examples
+* Add ability to change the skin parts of a bot (thanks @Naomi-alt)
+
+## 2.23.0
+* 1.16 support
+* fix noteheard (thanks @Naomi-alt)
+
+## 2.22.1
+* better typedef (thanks @Konstantin)
+* fix off by 1 error in findBlocks (thanks @Karang)
+* physics.js look fix (thanks @thesourceoferror)
+* fix chat message bracketing (thanks @Nurutomo)
+* use prismarine-physics
+
+## 2.22.0
+* Improve digTime computation (thanks @Karang)
+* expose blockEntity.raw (thanks @SiebeDW)
+* improve typedef for find block options (thanks @TheDudeFromCI)
+
+## 2.21.0
+* don't log errors if hideErrors is true
+
+## 2.20.0
+* add extra infos option in find block
+
+## 2.19.2
+* fix ground up for 1.13->1.15
+
+## 2.19.1
+* fix find block (thanks @Karang)
+* improve sign parsing (thanks @cookiedragon234)
+
+## 2.19.0
+* much faster findBlock (thanks @Karang)
+
+## 2.18.0
+* fix bugs in lookAt and setQuickBarSlot
+* add auto_totem example (thanks @AlexProgrammerDE)
+* improve blockAt speed
+
+## 2.17.0
+* physics engine refactor (thanks @Karang)
+* mcdata update for better 1.14 and 1.15 support
+
+## 2.16.0
+* use protodef compiler (thanks @Karang)
+* off-hand support (thanks @Karang)
+* fix type definitions (thanks @dada513)
+
+## 2.15.0
+* fix transfer bugs (thanks @Karang)
+* add typescript definitions (thanks @IdanHo)
+
+## 2.14.1
+* fix openVillager
+
+## 2.14.0
+* 1.15 support
+* russian translation (thanks @shketov)
+
+## 2.13.0
+* 1.14 support : more tests, refactored pwindows, feature flags (thanks @Karang)
+* Look at the center of the face when placing block
+* improve bot.sleep : don't sleep if mob are present (thanks @ImHarvol)
+
+## 2.12.0
+* 1.13 support (thanks @Karang, @hornta, @SiebeDW)
+* better fishing support (thanks @hutu13879513663)
+
+## 2.11.0
+* Expose columns & blockEntities (thanks @SiebeDW)
+* Create discord.js (thanks @SiebeDW)
+* change amount of slots based on version (thanks @IdanHo)
+* Fix 'respawn' event (thanks @ImHarvol)
+* Add callback to creative set block (thanks @wvffle)
+
+## 2.10.0
+Lot of fixes from @wvffle in this release :
+* more checks when digging
+* expose a bot.swingArgm() function
+* better toString to chat message
+* fix handling of empty signs
+* correct handling of entity metadata change
+And some others :
+* new tps plugin by @SiebeDW
+* correct handling of chunk unloading by @IdanHo
+
+## 2.9.6
+* fix logErrors option
+
+## 2.9.5
+* fix logErrors
+
+## 2.9.4
+* enable catching and logging of errors by default
+
+## 2.9.3
+* fix typo in variable name actionId
+
+## 2.9.2
+* improve pushback (thanks @Vap0r1ze)
+* more robust handling of tablist (thanks @wvffle)
+* ignore (with a warning) transaction without previous click
+
+## 2.9.1
+* improve boss bar
+* add checks in scoreboard implementation
+
+## 2.9.0
+
+* add universal chat patterns to support more chat plugins
+
+## 2.8.1
+
+* fix error on scoreboard removal
+
+## 2.8.0
+
+lot of new features from @wvffle :
+
+* support for block entities
+* improved block bars support
+* add block in sight
+* fix scoreboard support
+* add eating support
+* add tab complete support
+* add fishing support
+* better sign text support
+* repl example
+
+## 2.7.5
+
+* improve basic find block a bit
+
+## 2.7.4
+
+* start the bot alive in all cases
+* correct run speed and use it to limit the speed properly (thanks @CheezBarger)
+* emit error instead of throwing when loading a chunk (thanks @ArcticZeroo)
+
+## 2.7.3
+
+* use docsify for docs
+
+## 2.7.2
+
+* don't do anything if transaction.action < 0 (fix for some non-vanilla plugins)
+
+## 2.7.1
+
+* include fixes from pchunk, protodef and mcdata
+
+## 2.7.0
+
+* fix cannot jump repeatedly
+* fix spaces in chatmessage (thanks @Gjum)
+* add bot.getControlStates (thanks @ArcticZeroo)
+* Support end dimension (thanks @iRath96)
+* Added sneaking option to controll states (thanks @Meldiron)
+* add title event (thanks @yario-o)
+* Update sound.js to include hardcoded sound effects (thanks @jeresuikkila)
+* Support for the new launcher_profiles.json format  (thanks @Amezylst)
+* update api about checkTimeoutInterval
+
 ## 2.6.1
 
 * fix chatmessage
@@ -84,7 +272,7 @@
  * add extra tolerance for malformed sign packets (thanks @G07cha)
  * adapt to new minecraft data entities format
  * update minecraft-protocol to 0.17.2
- 
+
 
 ## 1.6.0
 
@@ -143,7 +331,7 @@
  * add a callback to bot.look and bot.lookAt
  * when receiving a remove effect packet : if the corresponding effect doesn't exist yet, emit an event with just the id of the effect (thanks Pietro210)
  * swing arm immediately when digging (thanks gipsy-king)
- * now updates bot.entity.heldItem when bot.heldItem is updated 
+ * now updates bot.entity.heldItem when bot.heldItem is updated
  * fix cli args in examples
  * add forcedMove event
  * fix equipment api
@@ -454,7 +642,7 @@ recalled
 ## 0.0.3
 
  * add `bot.blockAt(point)` which returns a `Block`
- * add `mineflayer.blocks`, `mineflayer.biomes`, and `mineflayer.items` 
+ * add `mineflayer.blocks`, `mineflayer.biomes`, and `mineflayer.items`
  * add bot `chunk` event
  * fix `spawn` event and `settings.showCape`
  * added chatterbox example

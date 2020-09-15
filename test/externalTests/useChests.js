@@ -17,11 +17,25 @@ module.exports = () => (bot, done) => {
     const trappedChestSlot = 37
     const boneSlot = 38
 
+    let blockItemsByName
+    if (bot.supportFeature('itemsAreNotBlocks')) {
+      blockItemsByName = 'itemsByName'
+    } else if (bot.supportFeature('itemsAreAlsoBlocks')) {
+      blockItemsByName = 'blocksByName'
+    }
+
     return [
       (cb) => {
-        bot.test.setInventorySlot(chestSlot, new Item(mcData.blocksByName['chest'].id, 3, 0), () => {
-          bot.test.setInventorySlot(trappedChestSlot, new Item(mcData.blocksByName['trapped_chest'].id, 3, 0), () => {
-            bot.test.setInventorySlot(boneSlot, new Item(mcData.itemsByName['bone'].id, 3, 0), cb)
+        bot.test.setInventorySlot(chestSlot, new Item(mcData[blockItemsByName].chest.id, 3, 0), (err) => {
+          assert.ifError(err)
+
+          bot.test.setInventorySlot(trappedChestSlot, new Item(mcData[blockItemsByName].trapped_chest.id, 3, 0), (err) => {
+            assert.ifError(err)
+
+            bot.test.setInventorySlot(boneSlot, new Item(mcData.itemsByName.bone.id, 3, 0), (err) => {
+              assert.ifError(err)
+              cb()
+            })
           })
         })
       },
@@ -41,6 +55,34 @@ module.exports = () => (bot, done) => {
             })
           })
         })
+      },
+      (cb) => {
+        // Test that "chestLidMove" is emitted only once when opening a double chest
+        let emitted = false
+        const chest = bot.openChest(bot.blockAt(largeChestLocations[0]))
+
+        function handler (block, isOpen, block2) {
+          if (emitted) {
+            assert.fail(new Error('chestLidMove emitted twice'))
+          } else {
+            emitted = true
+
+            let blockAssert = false; let block2Assert = false
+            for (const location of largeChestLocations) {
+              if (location.equals(block.position)) blockAssert = true
+              if (location.equals(block2.position)) block2Assert = true
+            }
+            assert(blockAssert && block2Assert, new Error('The block instance emitted by chestLidMove is not part of the chest oppened'))
+            assert.strictEqual(isOpen, 1, new Error('isOpen should be 1 when opened by one only player'))
+
+            setTimeout(() => {
+              bot.removeListener('chestLidMove', handler)
+              chest.close()
+              cb()
+            }, 500)
+          }
+        }
+        bot.on('chestLidMove', handler)
       },
       (cb) => {
         depositBones(smallChestLocation, 1, cb)

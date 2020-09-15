@@ -1,12 +1,14 @@
 const mc = require('minecraft-protocol')
 const EventEmitter = require('events').EventEmitter
 const pluginLoader = require('./lib/plugin_loader')
+const supportFeature = require('./lib/supportFeature')
 const plugins = {
   bed: require('./lib/plugins/bed'),
   title: require('./lib/plugins/title'),
   block_actions: require('./lib/plugins/block_actions'),
   blocks: require('./lib/plugins/blocks'),
   book: require('./lib/plugins/book'),
+  boss_bar: require('./lib/plugins/boss_bar'),
   chat: require('./lib/plugins/chat'),
   chest: require('./lib/plugins/chest'),
   command_block: require('./lib/plugins/command_block'),
@@ -24,15 +26,18 @@ const plugins = {
   kick: require('./lib/plugins/kick'),
   physics: require('./lib/plugins/physics'),
   rain: require('./lib/plugins/rain'),
+  ray_trace: require('./lib/plugins/ray_trace'),
   scoreboard: require('./lib/plugins/scoreboard'),
   settings: require('./lib/plugins/settings'),
   simple_inventory: require('./lib/plugins/simple_inventory'),
   sound: require('./lib/plugins/sound'),
   spawn_point: require('./lib/plugins/spawn_point'),
+  tablist: require('./lib/plugins/tablist'),
   time: require('./lib/plugins/time'),
   villager: require('./lib/plugins/villager')
 }
 const supportedVersions = require('./lib/version').supportedVersions
+const testedVersions = require('./lib/version').testedVersions
 
 module.exports = {
   createBot,
@@ -43,15 +48,26 @@ module.exports = {
   Dispenser: require('./lib/dispenser'),
   EnchantmentTable: require('./lib/enchantment_table'),
   ScoreBoard: require('./lib/scoreboard'),
-  supportedVersions
+  BossBar: require('./lib/bossbar'),
+  supportedVersions,
+  testedVersions,
+  supportFeature
 }
 
 function createBot (options = {}) {
   options.username = options.username || 'Player'
   options.version = options.version || false
   options.plugins = options.plugins || {}
+  options.logErrors = options.logErrors === undefined ? true : options.logErrors
   options.loadInternalPlugins = options.loadInternalPlugins !== false
   const bot = new Bot()
+  if (options.logErrors) {
+    bot.on('error', err => {
+      if (!options.hideErrors) {
+        console.log(err)
+      }
+    })
+  }
 
   pluginLoader(bot, options)
   const internalPlugins = Object.keys(plugins)
@@ -103,6 +119,7 @@ class Bot extends EventEmitter {
       self.majorVersion = version.majorVersion
       self.version = version.minecraftVersion
       options.version = version.minecraftVersion
+      self.supportFeature = feature => supportFeature(feature, version.majorVersion)
       self.emit('inject_allowed')
     }
   }

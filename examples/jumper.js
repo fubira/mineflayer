@@ -16,8 +16,7 @@ const bot = mineflayer.createBot({
   host: process.argv[2],
   port: parseInt(process.argv[3]),
   username: process.argv[4] ? process.argv[4] : 'jumper',
-  password: process.argv[5],
-  verbose: true
+  password: process.argv[5]
 })
 
 let target = null
@@ -56,7 +55,7 @@ bot.on('chat', (username, message) => {
       bot.setControlState('jump', false)
       break
     case 'attack':
-      entity = nearestEntity()
+      entity = bot.nearestEntity()
       if (entity) {
         bot.attack(entity, true)
       } else {
@@ -64,7 +63,7 @@ bot.on('chat', (username, message) => {
       }
       break
     case 'mount':
-      entity = nearestEntity('object')
+      entity = bot.nearestEntity((entity) => { return entity.type === 'object' })
       if (entity) {
         bot.mount(entity)
       } else {
@@ -115,22 +114,3 @@ bot.on('mount', () => {
 bot.on('dismount', (vehicle) => {
   bot.chat(`dismounted ${vehicle.objectType}`)
 })
-
-function nearestEntity (type) {
-  let id
-  let entity
-  let dist
-  let best = null
-  let bestDistance = null
-  for (id in bot.entities) {
-    entity = bot.entities[id]
-    if (type && entity.type !== type) continue
-    if (entity === bot.entity) continue
-    dist = bot.entity.position.distanceTo(entity.position)
-    if (!best || dist < bestDistance) {
-      best = entity
-      bestDistance = dist
-    }
-  }
-  return best
-}

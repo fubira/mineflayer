@@ -24,8 +24,7 @@ const bot = mineflayer.createBot({
   host: process.argv[2],
   port: parseInt(process.argv[3]),
   username: process.argv[4] ? process.argv[4] : 'chatterbox',
-  password: process.argv[5],
-  verbose: true
+  password: process.argv[5]
 })
 
 bot.on('chat', (username, message) => {
@@ -41,6 +40,9 @@ bot.on('chat', (username, message) => {
       break
     case 'wearing':
       sayEquipment()
+      break
+    case 'nick':
+      sayNick()
       break
     case 'spawn':
       saySpawnPoint()
@@ -98,6 +100,10 @@ bot.on('chat', (username, message) => {
   function quit (username) {
     bot.quit(`${username} told me to`)
   }
+
+  function sayNick () {
+    bot.chat(`My name is ${bot.player.displayName}`)
+  }
 })
 
 bot.on('whisper', (username, message, rawMessage) => {
@@ -131,7 +137,7 @@ bot.on('kicked', (reason) => {
 })
 
 bot.on('time', () => {
-  // bot.chat("Current time: " + bot.time.day % 24000);
+  bot.chat('Current time: ' + bot.time.timeOfDay)
 })
 bot.on('rain', () => {
   if (bot.isRaining) {
@@ -175,7 +181,7 @@ bot.on('entitySpawn', (entity) => {
   } else if (entity.type === 'player') {
     bot.chat(`Look who decided to show up: ${entity.username}`)
   } else if (entity.type === 'object') {
-    bot.chat(`There's a ${entity.objectType} at ${entity.position}`)
+    console.log(`There's a ${entity.objectType} at ${entity.position}`)
   } else if (entity.type === 'global') {
     bot.chat('Ooh lightning!')
   } else if (entity.type === 'orb') {
